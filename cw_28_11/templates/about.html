@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>О проекте</title>
+    <style>
+        body {
+            font-family: Times New Roman, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .feature {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #FFB6C1;
+        }
+    </style>
+</head>
+<body>
+    <h1><span style="color: pink">О проекте<span></h1>
+    <p>Учебный проект №1.</p>
+
+    <h2><span style="color: pink">Возможности:<span></h2>
+    <div class="feature">
+        <h3>🐈 Каталог предметов 🐈</h3>
+    </div>
+
+    <div class="feature">
+        <h3>🐈 Профили пользователей 🐈</h3>
+    </div>
+
+    <div class="feature">
+        <h3>🐈 Быстрый поиск 🐈</h3>
+    </div>
+
+    <nav>
+        <p><a href="{{ url_for('index') }}">Главная</a> |
+           <a href="{{ url_for('items') }}">Каталог</a> |
+           <a href="{{ url_for('search') }}">Поиск</a></p>
+    </nav>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог предметов</title>
+    <style>
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Каталог предметов</h1>
+
+    {% if items %}
+        <div>
+            {% for x in items %}
+                <div class="card">
+                    <h3><span style="color: pink">{{ x.title.upper() }}<span></h3>
+                    <p>{{ x.desc.capitalize() }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Список пуст.</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('index') }}">На главную</a></p>
+</body>
+</html>
