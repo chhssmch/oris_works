@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Цитаты волков</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Times New Roman, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .quote-box {
+            border: 3px solid #333;
+            padding: 40px;
+            border-radius: 15px;
+            background-color: white;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .quote-text {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #DCDCDC;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+        }
+        .btn:hover {
+            background-color: #C0C0C0;
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-box">
+        <div class="quote-text"> 🐺 {{ quote }} 🐺</div>
+        <button class="btn" onclick="location.reload()">Обновить</button>
+    </div>
+</body>
+</html>

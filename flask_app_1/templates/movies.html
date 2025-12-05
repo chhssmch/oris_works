@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Каталог фильмов</title>
+    <style>
+        body {
+            font-family: Times New Roman, sans-serif;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #222;
+            margin-bottom: 30px;
+        }
+        .movies-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+        .movie-card {
+            border: 2px solid #aaa;
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            background-color: white;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .movie-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #696969;
+            margin-bottom: 10px;
+        }
+        .movie-year, .movie-rating {
+            font-size: 18px;
+            margin: 5px 0;
+            color: #555;
+        }
+        .movie-rating {
+            color: #A52A2A;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Каталог фильмов</h1>
+    <div class="movies-container">
+        {% for movie in movies %}
+        <div class="movie-card">
+            <div class="movie-title">{{ movie.title }}</div>
+            <div class="movie-year">Год: {{ movie.year }}</div>
+            <div class="movie-rating">Рейтинг: {{ movie.rating }}/10</div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

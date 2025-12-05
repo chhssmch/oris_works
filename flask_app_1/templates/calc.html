@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <style>
+        body {
+            font-family: Times New Roman, sans-serif;
+            padding: 30px;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+        form input, form select, form button {
+            padding: 12px;
+            margin: 10px 5px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 12px 25px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 25px;
+            font-size: 22px;
+            color: #32CD32;
+            font-weight: bold;
+        }
+        .error {
+            margin-top: 25px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #B22222;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Калькулятор</h2>
+        <form method="GET">
+            <input type="number" step="any" name="a" placeholder="Число A" value="{{ a if a != None else '' }}">
+            <select name="op">
+                <option value="+" {% if op == '+' %}selected{% endif %}>+</option>
+                <option value="-" {% if op == '-' %}selected{% endif %}>-</option>
+                <option value="*" {% if op == '*' %}selected{% endif %}>*</option>
+                <option value="/" {% if op == '/' %}selected{% endif %}>/</option>
+            </select>
+            <input type="number" step="any" name="b" placeholder="Число B" value="{{ b if b != None else '' }}">
+            <button type="submit">Вычислить</button>
+        </form>
+
+        {% if result != None %}
+            <div class="result">Результат: {{ result }}</div>
+        {% endif %}
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>

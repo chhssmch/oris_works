@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Конвертер температур</title>
+    <style>
+        body {
+            font-family: Times New Roman, sans-serif;
+            background-color: #eef2f3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .converter {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 450px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        input, select, button {
+            padding: 15px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #bdc3c7;
+            width: 80%;
+        }
+        button {
+            background-color: #DCDCDC;
+            color: black;
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 85%;
+        }
+        button:hover {
+            background-color: #C0C0C0;
+        }
+        .result {
+            margin-top: 30px;
+            font-size: 26px;
+            color: #32CD32;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="converter">
+        <h2>Конвертер температур</h2>
+        <form method="GET">
+            <input type="number" step="any" name="value" placeholder="Введите значение" value="{{ value if value != None else '' }}">
+            <select name="direction">
+                <option value="c_to_f" {% if direction == 'c_to_f' %}selected{% endif %}>Celsius to Fahrenheit</option>
+                <option value="f_to_c" {% if direction == 'f_to_c' %}selected{% endif %}>Fahrenheit to Celsius</option>
+            </select>
+            <button type="submit">Конвертировать</button>
+        </form>
+
+        {% if result %}
+            <div class="result">{{ result }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
