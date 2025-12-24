@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Мой профиль - SwapIt{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>Мой профиль</h1>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-info">
+            <div class="info-card">
+                <h3><i class="fas fa-user-circle"></i> Основная информация</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Имя пользователя:</strong>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Email:</strong>
+                        <span>{{ user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Полное имя:</strong>
+                        <span>{{ user.full_name or 'Не указано' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Телефон:</strong>
+                        <span>{{ user.phone or 'Не указан' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Город:</strong>
+                        <span>{{ user.city or 'Не указан' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Дата регистрации:</strong>
+                        <span>{{ user.created_at.strftime('%d.%m.%Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="editForm" class="edit-form" style="display: none;">
+                <h3><i class="fas fa-edit"></i> Редактировать профиль</h3>
+                <form method="POST" action="{{ url_for('user_profile') }}">
+                    <div class="form-group">
+                        <label>Полное имя:</label>
+                        <input type="text" name="full_name" value="{{ user.full_name or '' }}"
+                               placeholder="Введите ваше полное имя">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Телефон:</label>
+                        <input type="tel" name="phone" value="{{ user.phone or '' }}"
+                               placeholder="+7 (999) 123-45-67">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Город:</label>
+                        <input type="text" name="city" value="{{ user.city or '' }}"
+                               placeholder="Введите ваш город">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Текущий пароль (для подтверждения):</label>
+                        <input type="password" name="current_password"
+                               placeholder="Введите текущий пароль" required>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn" onclick="cancelEdit()">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="profile-items">
+            <div class="section-header">
+                <h2>Мои товары ({{ items|length }})</h2>
+                <a href="{{ url_for('create_item') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить товар
+                </a>
+            </div>
+
+            {% if items %}
+<div class="items-grid">
+    {% for item in items %}
+    <div class="item-card">
+        {% if item.images and item.images|length > 0 %}
+        <div class="item-image">
+            <img src="{{ url_for('static', filename=item.images[0]) }}" alt="{{ item.title }}"
+                 onerror="this.onerror=null; this.src='https://via.placeholder.com/300x200?text=No+Image'">
+        </div>
+        {% else %}
+        <div class="item-image">
+            <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No image">
+        </div>
+        {% endif %}
+        
+        <div class="item-info">
+            <h3>{{ item.title }}</h3>
+            <p class="item-category">{{ item.category }}</p>
+            <p class="item-condition">
+                Состояние: 
+                <span class="condition-{{ item.condition }}">
+                    {{ {
+                        'new': 'Новый',
+                        'excellent': 'Отличное',
+                        'good': 'Хорошее',
+                        'satisfactory': 'Удовлетворительное',
+                        'broken': 'Требует ремонта'
+                    }[item.condition] }}
+                </span>
+            </p>
+            <p class="item-date">
+                Добавлен: {{ item.created_at.strftime('%d.%m.%Y') }}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fas fa-box-open fa-3x"></i>
+    <h3>У вас пока нет товаров</h3>
+    <p>Добавьте товары, чтобы начать обмен</p>
+    <a href="{{ url_for('create_item') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> Добавить первый товар
+    </a>
+</div>
+
+{% endif %}
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function editProfile() {
+    document.querySelector('.profile-info').style.display = 'none';
+    document.getElementById('editForm').style.display = 'block';
+}
+
+function cancelEdit() {
+    document.querySelector('.profile-info').style.display = 'block';
+    document.getElementById('editForm').style.display = 'none';
+}
+</script>
+{% endblock %}
