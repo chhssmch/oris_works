@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block title %}Предложить обмен - SwapIt{% endblock %}
+
+{% block content %}
+<div class="create-offer-container">
+    <h1>Предложить обмен</h1>
+    
+    <div class="offer-flow">
+        <div class="flow-step active">
+            <div class="step-number">1</div>
+            <div class="step-info">
+                <h3>Выберите товар для обмена</h3>
+                <p>Выберите свой товар, который хотите предложить</p>
+            </div>
+        </div>
+        
+        <div class="flow-step">
+            <div class="step-number">2</div>
+            <div class="step-info">
+                <h3>Напишите сообщение</h3>
+                <p>Обратитесь к владельцу товара</p>
+            </div>
+        </div>
+        
+        <div class="flow-step">
+            <div class="step-number">3</div>
+            <div class="step-info">
+                <h3>Отправьте предложение</h3>
+                <p>Мы уведомим владельца о вашем предложении</p>
+            </div>
+        </div>
+    </div>
+    
+    <form method="POST" class="offer-form" id="createOfferForm">
+        <input type="hidden" name="receiver_item_id" value="{{ receiver_item.id }}">
+        
+        <div class="form-section">
+            <h3><i class="fas fa-sync-alt"></i> Что меняем?</h3>
+            
+            <div class="items-comparison">
+                <div class="item-to-receive">
+                    <h4>Хочу получить:</h4>
+                    <div class="item-card">
+                        {% if receiver_item.image_urls and receiver_item.image_urls|length > 0 %}
+                        <div class="item-image">
+                            <img src="{{ receiver_item.image_urls[0] }}" 
+                                 alt="{{ receiver_item.title }}"
+                                 onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                        </div>
+                        {% else %}
+                        <div class="item-image">
+                            <img src="https://via.placeholder.com/300x200?text=No+Image" alt="No image">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="item-info">
+                            <h3>{{ receiver_item.title }}</h3>
+                            <p class="item-category">{{ receiver_item.category }}</p>
+                            <p class="item-condition">
+                                Состояние: 
+                                <span class="condition-{{ receiver_item.condition }}">
+                                    {{ {
+                                        'new': 'Новый',
+                                        'excellent': 'Отличное',
+                                        'good': 'Хорошее',
+                                        'satisfactory': 'Удовлетворительное',
+                                        'broken': 'Требует ремонта'
+                                    }[receiver_item.condition] }}
+                                </span>
+                            </p>
+                            <p class="item-owner">
+                                <i class="fas fa-user"></i> {{ receiver_item.owner_username or receiver_item.owner.username }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exchange-arrow">
+                    <i class="fas fa-exchange-alt fa-2x"></i>
+                </div>
+                
+                <div class="item-to-give">
+                    <h4>Предлагаю:</h4>
+                    
+                    <div class="item-selection">
+                        <div class="form-group">
+                            <label>Выберите ваш товар:</label>
+                            <select name="sender_item_id" id="senderItemSelect" required>
+    <option value="">Выберите товар</option>
+    {% for item in user_items %}
+    <option value="{{ item.id }}">{{ item.title }} ({{ item.category }})</option>
+    {% endfor %}
+</select>
+                        </div>
+                        
+                        <div id="selectedItemPreview" class="item-card" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3><i class="fas fa-comment-dots"></i> Ваше сообщение</h3>
+            <p class="section-help">Напишите сообщение владельцу товара</p>
+            
+            <div class="form-group">
+                <label for="message">Сообщение (необязательно):</label>
+                <textarea id="message" name="message" rows="4"
+                          placeholder="Здравствуйте! Я хотел бы предложить обмен на ваш товар..."></textarea>
+                <div class="char-counter">
+                    <span id="charCount">0</span> / 1000 символов
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section terms-section">
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="agree_terms" required>
+                    Я подтверждаю условия обмена
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large">
+                <i class="fas fa-paper-plane"></i> Отправить предложение
+            </button>
+            <a href="{{ url_for('item_detail', item_id=receiver_item.id) }}" class="btn">
+                Отмена
+            </a>
+        </div>
+    </form>
+
+</div>
+
+<style>
+.create-offer-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.offer-flow {
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.offer-flow::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background-color: #eee;
+    z-index: 1;
+}
+
+.flow-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0.5rem;
+}
+
+.step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #eee;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.flow-step.active .step-number {
+    background-color: #3498db;
+    color: white;
+}
+
+.step-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.step-info p {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.form-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-section h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.items-comparison {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.item-to-receive, .item-to-give {
+    border: 2px solid #eee;
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.item-to-receive h4, .item-to-give h4 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.exchange-arrow {
+    color: #3498db;
+    text-align: center;
+}
+
+.item-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.item-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-info {
+    padding: 1rem;
+}
+
+.item-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.item-category {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.item-condition {
+    font-size: 0.9rem;
+}
+
+.item-owner {
+    margin-top: 0.5rem;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.item-selection {
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+select, textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.char-counter {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    margin-top: 0.25rem;
+}
+
+.section-help {
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.terms-section {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn-large {
+    padding: 0.8rem 2rem;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .items-comparison {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .exchange-arrow {
+        display: none;
+    }
+    
+    .offer-flow {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .offer-flow::before {
+        display: none;
+    }
+    
+    .flow-step {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+const senderItemSelect = document.getElementById('senderItemSelect');
+const selectedItemPreview = document.getElementById('selectedItemPreview');
+const messageTextarea = document.getElementById('message');
+const messageCharCount = document.getElementById('charCount');
+
+// Обработчик выбора товара
+senderItemSelect.addEventListener('change', function() {
+    const selectedValue = this.value;
+    
+    if (selectedValue === '') {
+        selectedItemPreview.style.display = 'none';
+        updateFlowSteps();
+        return;
+    }
+    
+    const itemData = userItemsData[selectedValue];
+    if (itemData) {
+        selectedItemPreview.innerHTML = `
+            <div class="item-image">
+                <img src="${itemData.imageUrl}" alt="${itemData.title}"
+                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+            </div>
+            <div class="item-info">
+                <h3>${itemData.title}</h3>
+                <p class="item-category">${itemData.category}</p>
+                <p class="item-condition">
+                    Состояние: 
+                    <span class="condition-${itemData.condition}">
+                        ${itemData.conditionText}
+                    </span>
+                </p>
+            </div>
+        `;
+        selectedItemPreview.style.display = 'block';
+    }
+    
+    updateFlowSteps();
+});
+
+// Обработчик ввода сообщения
+messageTextarea.addEventListener('input', function() {
+    const count = this.value.length;
+    messageCharCount.textContent = count;
+    
+    if (count > 1000) {
+        this.value = this.value.substring(0, 1000);
+        messageCharCount.textContent = 1000;
+    }
+    
+    updateFlowSteps();
+});
+
+// Обновление шагов прогресса
+function updateFlowSteps() {
+    const steps = document.querySelectorAll('.flow-step');
+    
+    // Сброс всех шагов
+    steps.forEach(step => {
+        step.classList.remove('active');
+        const stepNumber = step.querySelector('.step-number');
+        stepNumber.style.backgroundColor = '#eee';
+        stepNumber.style.color = '#7f8c8d';
+    });
+    
+    // Шаг 1 всегда активен
+    steps[0].classList.add('active');
+    steps[0].querySelector('.step-number').style.backgroundColor = '#3498db';
+    steps[0].querySelector('.step-number').style.color = 'white';
+    
+    // Шаг 2 активен, если выбран товар
+    if (senderItemSelect.value && senderItemSelect.value !== '') {
+        steps[1].classList.add('active');
+        steps[1].querySelector('.step-number').style.backgroundColor = '#3498db';
+        steps[1].querySelector('.step-number').style.color = 'white';
+    }
+    
+    // Шаг 3 активен, если есть сообщение
+    if (messageTextarea.value.trim().length > 0) {
+        steps[2].classList.add('active');
+        steps[2].querySelector('.step-number').style.backgroundColor = '#3498db';
+        steps[2].querySelector('.step-number').style.color = 'white';
+    }
+}
+
+// Инициализация
+updateFlowSteps();
+
+// Обработчик отправки формы
+document.getElementById('createOfferForm').addEventListener('submit', function(e) {
+    if (!senderItemSelect.value) {
+        e.preventDefault();
+        alert('Пожалуйста, выберите товар для обмена');
+        senderItemSelect.focus();
+        return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+        submitBtn.disabled = true;
+    }
+});
+</script>
+{% endblock %}

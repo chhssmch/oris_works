@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать {{ item.title }} - SwapIt{% endblock %}
+
+{% block content %}
+<div class="edit-item-container">
+    <div class="page-header">
+        <h1>Редактировать товар</h1>
+        <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-sm">
+            <i class="fas fa-arrow-left"></i> Вернуться к товару
+        </a>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="item-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="form-group">
+        <label for="title">Название товара *</label>
+        <input type="text" id="title" name="title" required minlength="3" maxlength="200" 
+               value="{{ item.title if item else '' }}" class="form-control">
+    </div>
+    
+    <div class="form-group">
+        <label for="description">Описание *</label>
+        <textarea id="description" name="description" required minlength="10" 
+                  class="form-control" rows="5">{{ item.description if item else '' }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="category">Категория *</label>
+        <select id="category" name="category" required class="form-control">
+            <option value="">Выберите категорию</option>
+            <option value="Электроника" {% if item and item.category == 'Электроника' %}selected{% endif %}>Электроника</option>
+            <option value="Одежда" {% if item and item.category == 'Одежда' %}selected{% endif %}>Одежда</option>
+            <!-- Add other categories -->
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="images">Фотографии (макс. 5)</label>
+        <input type="file" id="images" name="images" multiple accept="image/*" class="form-control">
+    </div>
+    
+    <button type="submit" class="btn btn-primary">
+        {{ 'Сохранить изменения' if item else 'Добавить товар' }}
+    </button>
+</form>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.existing-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.existing-image {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.existing-image img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.image-info {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+}
+
+.image-status {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.image-status.main-image {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.no-images {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+</style>
+
+<script>
+function deleteItem(itemId) {
+    if (confirm('Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/items/${itemId}/delete`;
+        
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = 'csrf_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        
+        form.appendChild(csrfToken);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+const descriptionTextarea = document.getElementById('description');
+const charCount = document.getElementById('charCount');
+
+if (descriptionTextarea) {
+    descriptionTextarea.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        if (count > 2000) {
+            this.value = this.value.substring(0, 2000);
+            charCount.textContent = 2000;
+        }
+    });
+}
+
+document.getElementById('editItemForm').addEventListener('submit', function(e) {
+    const title = document.getElementById('title').value.trim();
+    const description = document.getElementById('description').value.trim();
+    
+    if (title.length < 3) {
+        e.preventDefault();
+        alert('Название товара должно быть не менее 3 символов');
+        document.getElementById('title').focus();
+        return;
+    }
+    
+    if (description.length < 10) {
+        e.preventDefault();
+        alert('Описание должно быть не менее 10 символов');
+        document.getElementById('description').focus();
+        return;
+    }
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+    submitBtn.disabled = true;
+});
+
+function confirmDelete() {
+    if (confirm('Вы уверены, что хотите удалить этот товар? Это действие нельзя отменить.')) {
+        document.getElementById('deleteForm').submit();
+    }
+}
+</script>
+{% endblock %}
