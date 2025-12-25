@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.title }} - SwapIt{% endblock %}
+
+{% block content %}
+<div class="item-detail">
+    <div class="item-detail-header">
+        <h1>{{ item.title }}</h1>
+        {% if user and user.id == item.owner_id %}
+        <div class="item-owner-actions">
+            <a href="{{ url_for('items_edit', item_id=item.id) }}" class="btn btn-sm">
+                <i class="fas fa-edit"></i> Редактировать
+            </a>
+            <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" 
+                  class="delete-form" id="deleteForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="button" class="btn btn-sm btn-danger" onclick="if(confirm('Вы уверены, что хотите удалить этот товар?')) { this.form.submit(); }">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="item-detail-content">
+        <div class="item-image-container">
+            <div class="main-image-container">
+                {% if item.images and item.images|length > 0 %}
+                    <img src="{{ url_for('static', filename=item.images[0]) }}" 
+                         alt="{{ item.title }}" 
+                         id="main-image"
+                         onerror="this.onerror=null; this.src='https://via.placeholder.com/800x600?text=No+Image'">
+                {% else %}
+                    <img src="https://via.placeholder.com/800x600?text=No+Image" 
+                         alt="No image available"
+                         id="main-image">
+                {% endif %}
+            </div>
+            
+            {% if item.images and item.images|length > 1 %}
+            <div class="item-thumbnails">
+                {% for image in item.images %}
+                    <div class="thumbnail" onclick="document.getElementById('main-image').src = '{{ url_for('static', filename=image) }}'">
+                        <img src="{{ url_for('static', filename=image) }}" 
+                             alt="{{ item.title }} - фото {{ loop.index }}">
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="item-info">
+            <div class="info-section">
+                <h3>Описание</h3>
+                <p>{{ item.description }}</p>
+            </div>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Категория:</strong>
+                    <span>{{ item.category }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Состояние:</strong>
+                    <span class="condition-{{ item.condition }}">
+                        {{ {
+                            'new': 'Новый',
+                            'excellent': 'Отличное',
+                            'good': 'Хорошее',
+                            'satisfactory': 'Удовлетворительное',
+                            'broken': 'Требует ремонта'
+                        }[item.condition] }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <strong>Статус:</strong>
+                    <span class="status-{{ item.status }}">
+                        {{ {
+                            'available': 'Доступен для обмена',
+                            'reserved': 'Зарезервирован',
+                            'swapped': 'Обменян'
+                        }[item.status] }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <strong>Владелец:</strong>
+                    <span>{{ item.owner_username }}</span>
+                </div>
+                <div class="info-item">
+                    <strong>Добавлен:</strong>
+                    <span>{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                </div>
+            </div>
+
+            {% if user and user.id != item.owner_id and item.status == 'available' %}
+            <div class="offer-section">
+                <h3>Предложить обмен</h3>
+                <form method="POST" action="{{ url_for('offers_index') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="receiver_item_id" value="{{ item.id }}">
+
+                    <div class="form-group">
+                        <label>Ваш товар для обмена:</label>
+                        <select name="sender_item_id" required>
+                            <option value="">Выберите ваш товар</option>
+                            {% for user_item in user_items %}
+                            <option value="{{ user_item.id }}">{{ user_item.title }} ({{ user_item.category }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Сообщение владельцу:</label>
+                        <textarea name="message" rows="3"
+                                  placeholder="Напишите сообщение владельцу товара и укажите контактные данные"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-exchange-alt"></i> Предложить обмен
+                    </button>
+                </form>
+            </div>
+            {% elif not user %}
+            <div class="offer-section">
+                <div class="alert alert-info">
+                    <a href="{{ url_for('login', next=url_for('item_detail', item_id=item.id)) }}">Войдите</a>, 
+                    чтобы предложить обмен
+                </div>
+            </div>
+            {% elif user.id == item.owner_id %}
+            <div class="offer-section">
+                <div class="alert alert-info">
+                    Это ваш товар
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
